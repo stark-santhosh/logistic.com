@@ -1,3 +1,4 @@
+```mermaid
 flowchart LR
     subgraph SC [Source Control]
         A[Developer Commit] --> B[GitHub Repository]
