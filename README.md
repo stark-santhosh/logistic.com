@@ -1,32 +1,30 @@
 ```mermaid
-flowchart LR
-    %% Define styles for better visuals
-    style A fill:#f4f4f4,stroke:#000,stroke-width:2
-    style B fill:#181717,stroke:#fff,color:#fff,stroke-width:2
-    style C fill:#f7df1e,stroke:#000,stroke-width:2
-    style D fill:#0db7ed,stroke:#000,stroke-width:2
-    style E fill:#2c3e50,stroke:#ecf0f1,stroke-width:2
-    style F fill:#4caf50,stroke:#000,stroke-width:2
-    style G fill:#f4f4f4,stroke:#000,stroke-width:2
-    style H fill:#e44d26,stroke:#fff,stroke-width:2
-    style I fill:#1d72b8,stroke:#fff,stroke-width:2
+flowchart LR;
+    A[**Developer Commit**] --> B[**GitHub**];
+    B --> C[**Jenkins CI Job**];
+    C --> D[**Build Docker Image**];
+    D --> E[**Push to Docker Hub**];
+    E --> F[**Argo CD Pull Image**];
+    F --> G[**Deploy to Kubernetes**];
+    G --> H[**Monitoring with Prometheus**];
+    G --> I[**Visualization with Grafana**];
 
-    %% Workflow (Horizontal Layout)
-    A[Developer Commit] -->|Push Code| B([GitHub])
-    B -->|Trigger Build| C([Jenkins CI])
-    C -->|Builds Image| D([Docker Image])
-    D -->|Push Image| E([Docker Hub])
-    E -->|Argo CD Pulls Image| F([Deploy to Kubernetes])
-    F -->|Runs Application| G([Application Running])
-    G -->|Monitor Metrics| H([Prometheus])
-    G -->|Visualize Dashboards| I([Grafana])
+    classDef commitStyle stroke:#ffcc00,stroke-width:2px,fill:none;
+    classDef githubStyle stroke:#181717,stroke:#fff,color:#fff,stroke-width:2px,fill:none;
+    classDef jenkinsStyle stroke:#f7df1e,stroke-width:2px,fill:none;
+    classDef buildStyle stroke:#99cc66,stroke-width:2px,fill:none;
+    classDef pushStyle stroke:#cc99ff,stroke-width:2px,fill:none;
+    classDef argoStyle stroke:#a2d5f2,stroke-width:2px,fill:none;
+    classDef deployStyle stroke:#66ffcc,stroke-width:2px,fill:none;
+    classDef monitoringStyle stroke:#ff9966,stroke-width:2px,fill:none;
+    classDef grafanaStyle stroke:#ffcc00,stroke-width:2px,fill:none;
 
-    %% Label logos for clarity
-    B:::github
-    C:::jenkins
-    E:::dockerhub
-
-    %% Define specific styles for key nodes
-    classDef github fill:#181717,stroke:#fff,color:#fff,stroke-width:2
-    classDef jenkins fill:#f7df1e,stroke:#000,stroke-width:2
-    classDef dockerhub fill:#0db7ed,stroke:#000,stroke-width:2
+    class A commitStyle;
+    class B githubStyle;
+    class C jenkinsStyle;
+    class D buildStyle; 
+    class E pushStyle;
+    class F argoStyle;
+    class G deployStyle;
+    class H monitoringStyle;
+    class I grafanaStyle;
