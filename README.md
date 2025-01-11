@@ -1,5 +1,5 @@
 ```mermaid
-flowchart TD
+flowchart LR
     %% Define styles for better visuals
     style A fill:#f4f4f4,stroke:#000,stroke-width:2
     style B fill:#181717,stroke:#fff,color:#fff,stroke-width:2
@@ -11,7 +11,7 @@ flowchart TD
     style H fill:#e44d26,stroke:#fff,stroke-width:2
     style I fill:#1d72b8,stroke:#fff,stroke-width:2
 
-    %% Workflow
+    %% Workflow (Horizontal Layout)
     A[Developer Commit] -->|Push Code| B([GitHub])
     B -->|Trigger Build| C([Jenkins CI])
     C -->|Builds Image| D([Docker Image])
