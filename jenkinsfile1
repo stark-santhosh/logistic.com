@@ -33,13 +33,4 @@ pipeline {
 
         // Other stages like Build, Push Docker Image, etc.
     }
-
-    post {
-        success {
-            echo "Pipeline completed successfully!"
-        }
-        failure {
-            echo "Pipeline failed!"
-        }
-    }
 }
