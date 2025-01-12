@@ -7,7 +7,8 @@ pipeline {
     }
     
     tools {
-        sonarScanner 'SonarQube'  // Define SonarQube Scanner installation in Jenkins under Global Tool Configuration
+        // Use the correct tool type for SonarQube Scanner
+        sonarRunner 'SonarQube'  // Ensure this matches the name of your SonarQube Scanner installation in Jenkins
     }
 
     stages {
