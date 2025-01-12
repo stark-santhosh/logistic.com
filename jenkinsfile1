@@ -2,6 +2,8 @@ pipeline {
     agent {
         docker {
             image 'sonarsource/sonar-scanner-cli:4.6'  // Use SonarQube Scanner CLI Docker image
+            args '-v /var/run/docker.sock:/var/run/docker.sock'  // Share Docker socket
+
         }
     }
 
