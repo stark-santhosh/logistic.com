@@ -19,14 +19,14 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    // Running SonarQube analysis
+                    // Running SonarQube analysis using Docker
                     withCredentials([string(credentialsId: "${SONARQUBE_CREDENTIALS}", variable: 'SONAR_TOKEN')]) {
                         sh """
-                        sonar-scanner \
-                          -Dsonar.projectKey=logistic \
-                          -Dsonar.sources=. \
-                          -Dsonar.host.url=${SONARQUBE_URL} \
-                          -Dsonar.login=${SONAR_TOKEN}
+                        docker run --rm \
+                          -e SONAR_HOST_URL=${SONARQUBE_URL} \
+                          -e SONAR_LOGIN=${SONAR_TOKEN} \
+                          -v \$(pwd):/usr/src \
+                          sonarsource/sonar-scanner-cli:latest
                         """
                     }
                 }
