@@ -6,14 +6,13 @@ pipeline {
         DOCKER_TAG = 'latest'
         DOCKERHUB_CREDENTIALS = 'u/pdockerhub' // DockerHub credentials ID
         SONARQUBE_CREDENTIALS = 'sonar-tok' // SonarQube credentials ID
-        SONARQUBE_URL = 'http://localhost:9000' // Change to your SonarQube URL
-        SONARQUBE_PROJECT_KEY = 'logistic' // SonarQube project key
+        SONARQUBE_URL = 'http://216.48.191.104:9000' // Replace with your actual SonarQube URL
     }
 
     stages {
         stage('Checkout Source Code') {
             steps {
-                git branch: 'master', url: 'https://github.com/ssanthosh2k3/logistic.com.git'
+                git branch: 'master', url: 'https://github.com/ssanthosh2k3/logistic.com.git', credentialsId: 'githubup'
             }
         }
 
@@ -22,19 +21,13 @@ pipeline {
                 script {
                     // Running SonarQube analysis using Docker
                     withCredentials([string(credentialsId: "${SONARQUBE_CREDENTIALS}", variable: 'SONAR_TOKEN')]) {
-                        try {
-                            sh """
-                            docker run --rm \
-                              -e SONAR_HOST_URL=${SONARQUBE_URL} \
-                              -e SONAR_LOGIN=${SONAR_TOKEN} \
-                              -e SONAR_PROJECT_KEY=${SONARQUBE_PROJECT_KEY} \
-                              -v \$(pwd):/usr/src \
-                              sonarsource/sonar-scanner-cli:latest
-                            """
-                        } catch (Exception e) {
-                            currentBuild.result = 'FAILURE'
-                            error "SonarQube analysis failed: ${e.getMessage()}"
-                        }
+                        sh """
+                        docker run --rm \
+                          -e SONAR_HOST_URL=${SONARQUBE_URL} \
+                          -e SONAR_LOGIN=${SONAR_TOKEN} \
+                          -v \$(pwd):/usr/src \
+                          sonarsource/sonar-scanner-cli:latest
+                        """
                     }
                 }
             }
@@ -64,7 +57,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    // Tag and push Docker image to DockerHub
+                    // Push Docker image
                     withCredentials([usernamePassword(credentialsId: "${DOCKERHUB_CREDENTIALS}", passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
                         sh """
                         docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}
