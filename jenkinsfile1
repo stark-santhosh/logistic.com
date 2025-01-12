@@ -5,7 +5,7 @@ pipeline {
         SONARQUBE_SERVER = 'SonarQube'  // Name of SonarQube configuration in Jenkins
         SONARQUBE_PROJECT_KEY = 'logistic.com'
         SONARQUBE_PROJECT_NAME = 'logistic.com'
-        SONARQUBE_TOKEN = credentials('sonar-tok')  // Credentials ID in Jenkins for SonarQube
+        SONARQUBE_TOKEN = credentials('sonar-tok2')  // Credentials ID in Jenkins for SonarQube
     }
 
     stages {
