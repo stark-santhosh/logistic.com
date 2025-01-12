@@ -1,36 +1,50 @@
 pipeline {
     agent any
-
     environment {
-        SONARQUBE_SERVER = 'SonarQube'  // Name of SonarQube configuration in Jenkins
-        SONARQUBE_PROJECT_KEY = 'logistic.com'
-        SONARQUBE_PROJECT_NAME = 'logistic.com'
-        SONARQUBE_TOKEN = credentials('sonar-tok')  // Credentials ID in Jenkins for SonarQube
+        SONARQUBE_CREDENTIALS = 'sonar-tok' // SonarQube credentials ID
+        SONARQUBE_URL = 'http://216.48.191.104/:9000/' // SonarQube server URL
+        SONAR_PROJECT_KEY = 'logistic.com' // SonarQube project key
+        SONAR_PROJECT_NAME = 'logistic.com' // SonarQube project name
     }
-
     stages {
-        stage('Checkout Source Code') {
+        stage('Checkout') {
             steps {
-                git branch: 'master', url: 'https://github.com/ssanthosh2k3/logistic.com.git', credentialsId: 'githubup'
+                // Checkout the code from the repository
+                https://github.com/ssanthosh2k3/logistic.com.git', credentialsId: 'githubup'
             }
         }
-
-        stage('SonarQube Analysis') {
+        stage('Install Dependencies') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'sonar-tok', variable: 'SONAR_TOKEN')]) {
-                        // Running SonarScanner with the environment variables set above
-                        sh """
-                        sonar-scanner \
-                            -Dsonar.projectKey=${SONARQUBE_PROJECT_KEY} \
-                            -Dsonar.projectName=${SONARQUBE_PROJECT_NAME} \
-                            -Dsonar.login=${SONAR_TOKEN}
-                        """
+                    // Run npm install inside a Docker container using the node:16 image
+                    sh 'docker run --rm -v $PWD:/app -w /app node:16 npm install'
+                }
+            }
+        }
+        stage('SonarQube Scan') {
+            steps {
+                script {
+                    // Run SonarQube scanner on the project inside a Docker container
+                    withCredentials([string(credentialsId: SONARQUBE_CREDENTIALS, variable: 'SONAR_TOKEN')]) {
+                        sh '''
+                            docker run --rm -v $PWD:/app -w /app sonarsource/sonar-scanner-cli \
+                                -Dsonar.projectKey=$SONAR_PROJECT_KEY \
+                                -Dsonar.projectName=$SONAR_PROJECT_NAME \
+                                -Dsonar.host.url=$SONARQUBE_URL \
+                                -Dsonar.login=$SONAR_TOKEN \
+                                -Dsonar.http.timeout=60000
+                        '''
                     }
                 }
             }
         }
-
-        // Other stages like Build, Push Docker Image, etc.
+    }
+    post {
+        success {
+            echo 'SonarQube scan completed successfully.'
+        }
+        failure {
+            echo 'SonarQube scan failed.'
+        }
     }
 }
