@@ -4,9 +4,10 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'logistic.com'
         DOCKER_TAG = 'latest'
-        DOCKERHUB_CREDENTIALS = 'u/pdockerhub' // DockerHub credentials ID
-        SONARQUBE_CREDENTIALS = 'sonar-tok' // Jenkins credentials ID for SonarQube token
-        SONARQUBE_PROJECT_KEY = 'logistic.com' // SonarQube project key
+        DOCKERHUB_CREDENTIALS = 'u/pdockerhub'
+        SONARQUBE_CREDENTIALS = 'sonar-tok'
+        SONARQUBE_PROJECT_KEY = 'logistic.com'
+        SONARQUBE_CONTAINER_NAME = 'sonar' // Docker container name for SonarQube
     }
 
     stages {
@@ -18,17 +19,14 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withCredentials([string(credentialsId: "${SONARQUBE_CREDENTIALS}", variable: 'SONAR_TOKEN')]) {
-                    withSonarQubeEnv('SonarQube') { // Use the configured SonarQube server from Jenkins
-                        script {
-                            // Run sonar-scanner with the necessary configuration
-                            sh """
-                            sonar-scanner \
-                                -Dsonar.projectKey=${SONARQUBE_PROJECT_KEY} \
-                                -Dsonar.projectName=${SONARQUBE_PROJECT_KEY} \
-                                -Dsonar.login=${SONAR_TOKEN}
-                            """
-                        }
+                script {
+                    withCredentials([string(credentialsId: "${SONARQUBE_CREDENTIALS}", variable: 'SONAR_TOKEN')]) {
+                        sh """
+                        docker exec -i ${SONARQUBE_CONTAINER_NAME} /opt/sonarqube/bin/sonar-scanner \
+                            -Dsonar.projectKey=${SONARQUBE_PROJECT_KEY} \
+                            -Dsonar.projectName=${SONARQUBE_PROJECT_KEY} \
+                            -Dsonar.login=${SONAR_TOKEN}
+                        """
                     }
                 }
             }
@@ -83,7 +81,7 @@ pipeline {
             echo "Pipeline completed successfully!"
         }
         failure {
-            echo "Pipeline failed. Please check the logs for errors."
+            echo "Pipeline failed!"
         }
     }
 }
