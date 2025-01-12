@@ -24,8 +24,7 @@ pipeline {
         stage('Install SonarQube Scanner') {
             steps {
                 script {
-                    // Installing SonarQube Scanner in the Docker container if not available
-                    sh 'sudo apt-get update && sudo apt-get install -y wget unzip'
+                    // Manually download and install SonarQube Scanner without sudo
                     sh 'wget https://sonarcloud.io/static/cpp/sonar-scanner-cli-4.6.2.2472-linux.zip'
                     sh 'unzip sonar-scanner-cli-4.6.2.2472-linux.zip'
                     sh 'mv sonar-scanner-4.6.2.2472-linux /usr/local/sonar-scanner'
