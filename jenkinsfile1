@@ -6,7 +6,7 @@ pipeline {
         DOCKER_TAG = 'latest'
         DOCKERHUB_CREDENTIALS = 'u/pdockerhub' // DockerHub credentials ID
         SONARQUBE_CREDENTIALS = 'sonar-tok' // SonarQube credentials ID
-        SONARQUBE_URL = 'http://your-sonarqube-url' // Replace with your actual SonarQube URL
+        SONARQUBE_URL = 'http://216.48.191.104:9000' // Replace with your actual SonarQube URL
     }
 
     stages {
