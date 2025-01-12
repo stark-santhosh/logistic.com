@@ -18,9 +18,10 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                script {
-                    withCredentials([string(credentialsId: "${SONARQUBE_CREDENTIALS}", variable: 'SONAR_TOKEN')]) {
-                        withSonarQubeEnv('SonarQube') { // Use the configured SonarQube server from Jenkins
+                withCredentials([string(credentialsId: "${SONARQUBE_CREDENTIALS}", variable: 'SONAR_TOKEN')]) {
+                    withSonarQubeEnv('SonarQube') { // Use the configured SonarQube server from Jenkins
+                        script {
+                            // Run sonar-scanner with the necessary configuration
                             sh """
                             sonar-scanner \
                                 -Dsonar.projectKey=${SONARQUBE_PROJECT_KEY} \
@@ -79,10 +80,10 @@ pipeline {
 
     post {
         success {
-            echo "Docker image successfully built and pushed to Docker Hub."
+            echo "Pipeline completed successfully!"
         }
         failure {
-            echo "Pipeline failed. Please check the logs."
+            echo "Pipeline failed. Please check the logs for errors."
         }
     }
 }
