@@ -5,7 +5,8 @@ pipeline {
         SONARQUBE_TOKEN = credentials('sonar-tok') // SonarQube token from Jenkins credentials
         DOCKER_IMAGE = 'logistic.com'
         DOCKER_TAG = 'latest'
-        DOCKERHUB_CREDENTIALS = 'u/pdockerhub' // DockerHub credentials ID
+        DOCKERHUB_CREDENTIALS = 'dockerhub-tok' // Correct DockerHub credentials ID
+        DOCKER_USERNAME = 'santhoshadmin' // DockerHub username
     }
 
     stages {
@@ -40,8 +41,8 @@ pipeline {
         stage('Login to Docker Hub') {
             steps {
                 script {
-                    // Login to Docker Hub
-                    withCredentials([usernamePassword(credentialsId: "${DOCKERHUB_CREDENTIALS}", passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                    // Login to Docker Hub using the access token stored in Jenkins
+                    withCredentials([string(credentialsId: "${DOCKERHUB_CREDENTIALS}", variable: 'DOCKER_PASSWORD')]) {
                         sh """
                         echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
                         """
