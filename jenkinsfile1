@@ -2,12 +2,10 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'logistic.com'
-        DOCKER_TAG = 'latest'
-        DOCKERHUB_CREDENTIALS = 'u/pdockerhub'
-        SONARQUBE_CREDENTIALS = 'sonar-tok'
+        SONARQUBE_SERVER = 'SonarQube'  // Name of SonarQube configuration in Jenkins
         SONARQUBE_PROJECT_KEY = 'logistic.com'
-        SONARQUBE_CONTAINER_NAME = 'sonar' // Docker container name for SonarQube
+        SONARQUBE_PROJECT_NAME = 'logistic.com'
+        SONARQUBE_TOKEN = credentials('sonar-tok')  // Credentials ID in Jenkins for SonarQube
     }
 
     stages {
@@ -20,11 +18,12 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: "${SONARQUBE_CREDENTIALS}", variable: 'SONAR_TOKEN')]) {
+                    withCredentials([string(credentialsId: 'sonar-tok', variable: 'SONAR_TOKEN')]) {
+                        // Running SonarScanner with the environment variables set above
                         sh """
-                        docker exec -i ${SONARQUBE_CONTAINER_NAME} /opt/sonarqube/bin/sonar-scanner \
+                        sonar-scanner \
                             -Dsonar.projectKey=${SONARQUBE_PROJECT_KEY} \
-                            -Dsonar.projectName=${SONARQUBE_PROJECT_KEY} \
+                            -Dsonar.projectName=${SONARQUBE_PROJECT_NAME} \
                             -Dsonar.login=${SONAR_TOKEN}
                         """
                     }
@@ -32,48 +31,7 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
-                }
-            }
-        }
-
-        stage('Login to Docker Hub') {
-            steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: "${DOCKERHUB_CREDENTIALS}", passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                        sh """
-                        echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
-                        """
-                    }
-                }
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: "${DOCKERHUB_CREDENTIALS}", passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                        sh """
-                        docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}
-                        docker push ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}
-                        """
-                    }
-                }
-            }
-        }
-
-        stage('Cleanup Docker Local Images') {
-            steps {
-                script {
-                    sh """
-                    docker rmi ${DOCKER_IMAGE}:${DOCKER_TAG} || true
-                    """
-                }
-            }
-        }
+        // Other stages like Build, Push Docker Image, etc.
     }
 
     post {
