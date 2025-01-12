@@ -19,12 +19,15 @@ pipeline {
             steps {
                 script {
                     withCredentials([string(credentialsId: 'sonar-tok', variable: 'SONAR_TOKEN')]) {
-                        // Running SonarScanner with the environment variables set above
+                        // Running SonarScanner using Docker container
                         sh """
-                        sonar-scanner \
-                            -Dsonar.projectKey=${SONARQUBE_PROJECT_KEY} \
-                            -Dsonar.projectName=${SONARQUBE_PROJECT_NAME} \
-                            -Dsonar.login=${SONAR_TOKEN}
+                        docker run --rm \
+                            -e SONAR_TOKEN=${SONAR_TOKEN} \
+                            -v \$PWD:/usr/src \
+                            sonarsource/sonar-scanner-cli \
+                                -Dsonar.projectKey=${SONARQUBE_PROJECT_KEY} \
+                                -Dsonar.projectName=${SONARQUBE_PROJECT_NAME} \
+                                -Dsonar.login=${SONAR_TOKEN}
                         """
                     }
                 }
@@ -32,5 +35,14 @@ pipeline {
         }
 
         // Add more stages here if needed
+    }
+
+    post {
+        success {
+            echo 'SonarQube analysis completed successfully.'
+        }
+        failure {
+            echo 'SonarQube analysis failed.'
+        }
     }
 }
