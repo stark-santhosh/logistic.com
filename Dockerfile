@@ -6,7 +6,6 @@ WORKDIR /usr/share/nginx/html
 
 # Remove the default Nginx HTML files
 RUN rm -rf ./*
-RUN apt-get update && apt-get install -y sonar-scanner
 
 # Copy the website files to the container
 COPY . .
