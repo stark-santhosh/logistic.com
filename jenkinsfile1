@@ -1,11 +1,16 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'maven:3.8.4-jdk-11'  // Replace with your desired Docker image
+            args '-v /mnt:/mnt'    // Optional: You can pass additional Docker run arguments if needed
+        }
+    }
 
     environment {
         SONARQUBE_TOKEN = credentials('sonar-tok') // SonarQube token from Jenkins credentials
         DOCKER_IMAGE = 'logistic.com'
         DOCKER_TAG = 'latest'
-        DOCKERHUB_CREDENTIALS = 'dockerhub-tok' // Correct DockerHub credentials ID
+        DOCKERHUB_CREDENTIALS = 'dockerhub-tok' // DockerHub credentials ID
         DOCKER_USERNAME = 'santhoshadmin' // DockerHub username
     }
 
@@ -41,7 +46,6 @@ pipeline {
         stage('Login to Docker Hub') {
             steps {
                 script {
-                    // Login to Docker Hub using the access token stored in Jenkins
                     withCredentials([string(credentialsId: "${DOCKERHUB_CREDENTIALS}", variable: 'DOCKER_PASSWORD')]) {
                         sh """
                         echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
@@ -54,7 +58,6 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    // Push Docker image to Docker Hub
                     sh """
                     docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}
                     docker push ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}
@@ -66,7 +69,6 @@ pipeline {
         stage('Cleanup Docker Local Images') {
             steps {
                 script {
-                    // Clean up local Docker images to save space
                     sh """
                     docker rmi ${DOCKER_IMAGE}:${DOCKER_TAG} || true
                     docker rmi ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG} || true
