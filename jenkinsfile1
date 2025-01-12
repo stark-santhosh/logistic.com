@@ -5,12 +5,31 @@ pipeline {
         DOCKER_IMAGE = 'logistic.com'
         DOCKER_TAG = 'latest'
         DOCKERHUB_CREDENTIALS = 'u/pdockerhub' // DockerHub credentials ID
+        SONARQUBE_URL = 'http://localhost:9000'  // Replace with your SonarQube container URL if different
+        SONARQUBE_CREDENTIALS = 'sonar-tok' // Jenkins credentials ID for SonarQube token
+        SONARQUBE_PROJECT_KEY = 'logistic.com' // SonarQube project key
     }
 
     stages {
         stage('Checkout Source Code') {
             steps {
                 git branch: 'master', url: 'https://github.com/ssanthosh2k3/logistic.com.git', credentialsId: 'githubup'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    withCredentials([string(credentialsId: "${SONARQUBE_CREDENTIALS}", variable: 'SONAR_TOKEN')]) {
+                        sh """
+                        sonar-scanner \
+                            -Dsonar.projectKey=${SONARQUBE_PROJECT_KEY} \
+                            -Dsonar.projectName=${SONARQUBE_PROJECT_KEY} \
+                            -Dsonar.host.url=${SONARQUBE_URL} \
+                            -Dsonar.login=${SONAR_TOKEN}
+                        """
+                    }
+                }
             }
         }
 
