@@ -2,7 +2,6 @@ pipeline {
     agent {
         docker {
             image 'maven:3.8.4-jdk-11'  // Replace this with the Docker image you want to use
-            label 'docker-agent'  // Optional: If you have a specific label for your Docker agents
             args '-v /mnt:/mnt'    // Optional: You can pass additional Docker run arguments if needed
         }
     }
