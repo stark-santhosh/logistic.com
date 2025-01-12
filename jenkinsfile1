@@ -1,7 +1,8 @@
 pipeline {
     agent {
         docker {
-            image 'alpine:latest'  // Using Alpine image as the agent
+            image 'maven:3.8.4-jdk-11'  // Docker image to use for the build
+            args '-v /mnt:/mnt'  // Optional: Mount volumes or provide additional Docker arguments if needed
         }
     }
 
@@ -20,16 +21,31 @@ pipeline {
             }
         }
 
+        stage('Install SonarQube Scanner') {
+            steps {
+                script {
+                    // Installing SonarQube Scanner in the Docker container if not available
+                    sh 'apt-get update && apt-get install -y wget unzip'
+                    sh 'wget https://sonarcloud.io/static/cpp/sonar-scanner-cli-4.6.2.2472-linux.zip'
+                    sh 'unzip sonar-scanner-cli-4.6.2.2472-linux.zip'
+                    sh 'mv sonar-scanner-4.6.2.2472-linux /usr/local/sonar-scanner'
+                    sh 'export PATH=$PATH:/usr/local/sonar-scanner/bin'
+                }
+            }
+        }
+
         stage('SonarQube Scan') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh """
-                    ${tool 'sonar-scanner'}/bin/sonar-scanner \
-                    -Dsonar.projectKey=logistic.com \
-                    -Dsonar.sources=. \
-                    -Dsonar.host.url=http://216.48.191.104:9000 \
-                    -Dsonar.login=${SONARQUBE_TOKEN}
-                    """
+                    withCredentials([string(credentialsId: 'sonar-tok', variable: 'SONARQUBE_TOKEN')]) {
+                        sh """
+                        sonar-scanner \
+                        -Dsonar.projectKey=logistic.com \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=http://216.48.191.104:9000 \
+                        -Dsonar.login=${SONARQUBE_TOKEN}
+                        """
+                    }
                 }
             }
         }
