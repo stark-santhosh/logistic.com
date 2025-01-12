@@ -13,7 +13,7 @@ pipeline {
     stages {
         stage('Checkout Source Code') {
             steps {
-                git branch: 'master', url: 'https://github.com/ssanthosh2k3/logistic.com.git', credentialsId: 'githubup'
+                git branch: 'master', url: 'https://github.com/ssanthosh2k3/logistic.com.git'
             }
         }
 
