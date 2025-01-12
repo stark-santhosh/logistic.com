@@ -1,35 +1,22 @@
 pipeline {
     agent {
         docker {
-            image 'maven:3.8.4-jdk-11'  // Docker image to use for the build
-            args '-v /mnt:/mnt'  // Optional: Mount volumes or provide additional Docker arguments if needed
+            image 'sonarsource/sonar-scanner-cli:4.6'  // Use SonarQube Scanner CLI Docker image
         }
     }
 
     environment {
-        SONARQUBE_TOKEN = credentials('sonar-tok') // SonarQube token from Jenkins credentials
+        SONARQUBE_TOKEN = credentials('sonar-tok')  // Use SonarQube token from Jenkins credentials
         DOCKER_IMAGE = 'logistic.com'
         DOCKER_TAG = 'latest'
-        DOCKERHUB_CREDENTIALS = 'dockerhub-tok' // DockerHub credentials ID
-        DOCKER_USERNAME = 'santhoshadmin' // DockerHub username
+        DOCKERHUB_CREDENTIALS = 'dockerhub-tok'  // DockerHub credentials ID
+        DOCKER_USERNAME = 'santhoshadmin'  // DockerHub username
     }
 
     stages {
         stage('Checkout Source Code') {
             steps {
                 git branch: 'master', url: 'https://github.com/ssanthosh2k3/logistic.com.git', credentialsId: 'githubup'
-            }
-        }
-
-        stage('Install SonarQube Scanner') {
-            steps {
-                script {
-                    // Manually download and install SonarQube Scanner without sudo
-                    sh 'wget https://sonarcloud.io/static/cpp/sonar-scanner-cli-4.6.2.2472-linux.zip'
-                    sh 'unzip sonar-scanner-cli-4.6.2.2472-linux.zip'
-                    sh 'mv sonar-scanner-4.6.2.2472-linux /usr/local/sonar-scanner'
-                    sh 'export PATH=$PATH:/usr/local/sonar-scanner/bin'
-                }
             }
         }
 
