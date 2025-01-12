@@ -2,47 +2,45 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE_SERVER = 'SonarQube'  // Name of SonarQube configuration in Jenkins
-        SONARQUBE_PROJECT_KEY = 'logistic.com'
-        SONARQUBE_PROJECT_NAME = 'logistic.com'
-        SONARQUBE_TOKEN = credentials('sonar-tok2')  // Credentials ID in Jenkins for SonarQube
+        SONAR_HOST_URL = 'http://216.48.191.104:9000'  // SonarQube server URL
+        SONAR_PROJECT_KEY = 'logistic.com'  // SonarQube project key
+        SONAR_LOGIN = 'sqp_e4ed49532810ffe926af8e3f1b9357b744560e26'  // SonarQube token
     }
 
     stages {
-        stage('Checkout Source Code') {
+        stage('Checkout') {
             steps {
-                git branch: 'master', url: 'https://github.com/ssanthosh2k3/logistic.com.git', credentialsId: 'githubup'
+                // Checkout the source code
+                checkout scm
             }
         }
-
-        stage('SonarQube Analysis') {
+        
+        stage('SonarQube Scan') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'sonar-tok', variable: 'SONAR_TOKEN')]) {
-                        // Running SonarScanner using Docker container
-                        sh """
-                        docker run --rm \
-                            -e SONAR_TOKEN=${SONAR_TOKEN} \
-                            -v \$PWD:/usr/src \
-                            sonarsource/sonar-scanner-cli \
-                                -Dsonar.projectKey=${SONARQUBE_PROJECT_KEY} \
-                                -Dsonar.projectName=${SONARQUBE_PROJECT_NAME} \
-                                -Dsonar.login=${SONAR_TOKEN}
-                        """
-                    }
+                    // Run sonar-scanner with the necessary arguments
+                    sh """
+                    sonar-scanner \
+                        -Dsonar.projectKey=${env.SONAR_PROJECT_KEY} \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=${env.SONAR_HOST_URL} \
+                        -Dsonar.login=${env.SONAR_LOGIN}
+                    """
                 }
             }
         }
-
-        // Add more stages here if needed
     }
-
+    
     post {
+        always {
+            // Clean up or post-process after the pipeline runs
+            echo "Pipeline finished"
+        }
         success {
-            echo 'SonarQube analysis completed successfully.'
+            echo "SonarQube analysis was successful."
         }
         failure {
-            echo 'SonarQube analysis failed.'
+            echo "SonarQube analysis failed."
         }
     }
 }
