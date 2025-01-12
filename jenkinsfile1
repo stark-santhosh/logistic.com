@@ -2,14 +2,14 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE_URL = 'http://216.48.191.104:9000'  // URL of the SonarQube server
-        SONARQUBE_TOKEN = 'sqp_e4ed49532810ffe926af8e3f1b9357b744560e26'  // SonarQube token for authentication
+        // Fetch SonarQube token from Jenkins credentials
+        SONARQUBE_TOKEN = credentials('sonar-tok')
     }
 
     stages {
         stage('Checkout SCM') {
             steps {
-                checkout scm  // Checkout the code from the repository
+                checkout scm
             }
         }
 
@@ -17,37 +17,14 @@ pipeline {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     sh """
-                    sonar-scanner \
+                    ${tool 'sonar-scanner'}/bin/sonar-scanner \
                     -Dsonar.projectKey=logistic.com \
                     -Dsonar.sources=. \
-                    -Dsonar.host.url=${SONARQUBE_URL} \
+                    -Dsonar.host.url=http://216.48.191.104:9000 \
                     -Dsonar.login=${SONARQUBE_TOKEN}
                     """
                 }
             }
-        }
-
-        stage('Build') {
-            steps {
-                echo 'Building the project...'
-                // Add your build steps here
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                echo 'Deploying the project...'
-                // Add your deployment steps here
-            }
-        }
-    }
-
-    post {
-        success {
-            echo 'Pipeline completed successfully.'
-        }
-        failure {
-            echo 'Pipeline failed.'
         }
     }
 }
