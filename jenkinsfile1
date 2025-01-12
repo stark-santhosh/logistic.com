@@ -6,7 +6,8 @@ pipeline {
         DOCKER_TAG = 'latest'
         DOCKERHUB_CREDENTIALS = 'u/pdockerhub' // DockerHub credentials ID
         SONARQUBE_CREDENTIALS = 'sonar-tok' // SonarQube credentials ID
-        SONARQUBE_URL = 'http://localhost:9000' // Change to localhost or the correct SonarQube URL
+        SONARQUBE_URL = 'http://localhost:9000' // Change to your SonarQube URL
+        SONARQUBE_PROJECT_KEY = 'logistic' // SonarQube project key
     }
 
     stages {
@@ -26,6 +27,7 @@ pipeline {
                             docker run --rm \
                               -e SONAR_HOST_URL=${SONARQUBE_URL} \
                               -e SONAR_LOGIN=${SONAR_TOKEN} \
+                              -e SONAR_PROJECT_KEY=${SONARQUBE_PROJECT_KEY} \
                               -v \$(pwd):/usr/src \
                               sonarsource/sonar-scanner-cli:latest
                             """
@@ -62,7 +64,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    // Push Docker image
+                    // Tag and push Docker image to DockerHub
                     withCredentials([usernamePassword(credentialsId: "${DOCKERHUB_CREDENTIALS}", passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
                         sh """
                         docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}
