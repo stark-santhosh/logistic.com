@@ -4,15 +4,15 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'logistic.com'
         DOCKER_TAG = 'latest'
-        DOCKERHUB_USERNAME = 'santhoshadmin'  // Replace this with your DockerHub username
-        DOCKERHUB_CREDENTIALS = 'dockerhub-tok'
+        DOCKERHUB_USERNAME = 'santhoshadmin'  // Replace with your DockerHub username
+        DOCKERHUB_CREDENTIALS = 'dockerhub-tok'  // Replace with your DockerHub credentials ID
     }
 
     stages {
         stage('Checkout Source Code') {
             steps {
                 // Clone the repository
-                git branch: 'main', url: 'https://github.com/ssanthosh2k3/logistic.com.git'
+                git branch: 'master', url: 'https://github.com/ssanthosh2k3/logistic.com.git', credentialsId: 'githubup'
             }
         }
 
