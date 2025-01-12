@@ -1,8 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'maven:3.8.4-jdk-11'  // Replace with your desired Docker image
-            args '-v /mnt:/mnt'    // Optional: You can pass additional Docker run arguments if needed
+            image 'alpine:latest'  // Using Alpine image as the agent
         }
     }
 
