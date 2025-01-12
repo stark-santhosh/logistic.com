@@ -5,7 +5,6 @@ pipeline {
         DOCKER_IMAGE = 'logistic.com'
         DOCKER_TAG = 'latest'
         DOCKERHUB_CREDENTIALS = 'u/pdockerhub' // DockerHub credentials ID
-        SONARQUBE_URL = 'http://localhost:9000'  // Replace with your SonarQube container URL if different
         SONARQUBE_CREDENTIALS = 'sonar-tok' // Jenkins credentials ID for SonarQube token
         SONARQUBE_PROJECT_KEY = 'logistic.com' // SonarQube project key
     }
@@ -21,13 +20,14 @@ pipeline {
             steps {
                 script {
                     withCredentials([string(credentialsId: "${SONARQUBE_CREDENTIALS}", variable: 'SONAR_TOKEN')]) {
-                        sh """
-                        sonar-scanner \
-                            -Dsonar.projectKey=${SONARQUBE_PROJECT_KEY} \
-                            -Dsonar.projectName=${SONARQUBE_PROJECT_KEY} \
-                            -Dsonar.host.url=${SONARQUBE_URL} \
-                            -Dsonar.login=${SONAR_TOKEN}
-                        """
+                        withSonarQubeEnv('SonarQube') { // Use the configured SonarQube server from Jenkins
+                            sh """
+                            sonar-scanner \
+                                -Dsonar.projectKey=${SONARQUBE_PROJECT_KEY} \
+                                -Dsonar.projectName=${SONARQUBE_PROJECT_KEY} \
+                                -Dsonar.login=${SONAR_TOKEN}
+                            """
+                        }
                     }
                 }
             }
@@ -44,7 +44,6 @@ pipeline {
         stage('Login to Docker Hub') {
             steps {
                 script {
-                    // Login to Docker Hub
                     withCredentials([usernamePassword(credentialsId: "${DOCKERHUB_CREDENTIALS}", passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
                         sh """
                         echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
@@ -57,7 +56,6 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    // Push Docker image
                     withCredentials([usernamePassword(credentialsId: "${DOCKERHUB_CREDENTIALS}", passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
                         sh """
                         docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}
