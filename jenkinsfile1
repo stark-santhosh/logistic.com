@@ -5,31 +5,12 @@ pipeline {
         DOCKER_IMAGE = 'logistic.com'
         DOCKER_TAG = 'latest'
         DOCKERHUB_CREDENTIALS = 'u/pdockerhub' // DockerHub credentials ID
-        SONARQUBE_CREDENTIALS = 'sonar-tok' // SonarQube credentials ID
-        SONARQUBE_URL = 'http://216.48.191.104:9000' // Replace with your actual SonarQube URL
     }
 
     stages {
         stage('Checkout Source Code') {
             steps {
                 git branch: 'master', url: 'https://github.com/ssanthosh2k3/logistic.com.git', credentialsId: 'githubup'
-            }
-        }
-
-        stage('SonarQube Analysis') {
-            steps {
-                script {
-                    // Running SonarQube analysis using Docker
-                    withCredentials([string(credentialsId: "${SONARQUBE_CREDENTIALS}", variable: 'SONAR_TOKEN')]) {
-                        sh """
-                        docker run --rm \
-                          -e SONAR_HOST_URL=${SONARQUBE_URL} \
-                          -e SONAR_LOGIN=${SONAR_TOKEN} \
-                          -v \$(pwd):/usr/src \
-                          sonarsource/sonar-scanner-cli:latest
-                        """
-                    }
-                }
             }
         }
 
@@ -81,7 +62,7 @@ pipeline {
 
     post {
         success {
-            echo "Docker image successfully built, scanned by SonarQube, and pushed to Docker Hub."
+            echo "Docker image successfully built and pushed to Docker Hub."
         }
         failure {
             echo "Pipeline failed. Please check the logs."
