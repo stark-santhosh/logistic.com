@@ -1,18 +1,12 @@
 pipeline {
-    agent {
-        docker {
-            image 'sonarsource/sonar-scanner-cli:4.6'  // Use SonarQube Scanner CLI Docker image
-            args '-v /var/run/docker.sock:/var/run/docker.sock'  // Share Docker socket
-
-        }
-    }
+    agent any
 
     environment {
-        SONARQUBE_TOKEN = credentials('sonar-tok')  // Use SonarQube token from Jenkins credentials
+        SONARQUBE_TOKEN = credentials('sonar-tok') // SonarQube token from Jenkins credentials
         DOCKER_IMAGE = 'logistic.com'
-        DOCKER_TAG = 'latest'
-        DOCKERHUB_CREDENTIALS = 'dockerhub-tok'  // DockerHub credentials ID
-        DOCKER_USERNAME = 'santhoshadmin'  // DockerHub username
+        DOCKER_TAG = "latest-${BUILD_NUMBER}"  // Append build number to the tag
+        DOCKERHUB_CREDENTIALS = 'dockerhub-tok' // Correct DockerHub credentials ID
+        DOCKER_USERNAME = 'santhoshadmin' // DockerHub username
     }
 
     stages {
@@ -25,15 +19,13 @@ pipeline {
         stage('SonarQube Scan') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    withCredentials([string(credentialsId: 'sonar-tok', variable: 'SONARQUBE_TOKEN')]) {
-                        sh """
-                        sonar-scanner \
-                        -Dsonar.projectKey=logistic.com \
-                        -Dsonar.sources=. \
-                        -Dsonar.host.url=http://216.48.191.104:9000 \
-                        -Dsonar.login=${SONARQUBE_TOKEN}
-                        """
-                    }
+                    sh """
+                    ${tool 'sonar-scanner'}/bin/sonar-scanner \
+                    -Dsonar.projectKey=logistic.com \
+                    -Dsonar.sources=. \
+                    -Dsonar.host.url=http://216.48.191.104:9000 \
+                    -Dsonar.login=${SONARQUBE_TOKEN}
+                    """
                 }
             }
         }
@@ -49,6 +41,7 @@ pipeline {
         stage('Login to Docker Hub') {
             steps {
                 script {
+                    // Login to Docker Hub using the access token stored in Jenkins
                     withCredentials([string(credentialsId: "${DOCKERHUB_CREDENTIALS}", variable: 'DOCKER_PASSWORD')]) {
                         sh """
                         echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
@@ -61,6 +54,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
+                    // Push Docker image to Docker Hub with the build number included
                     sh """
                     docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}
                     docker push ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}
@@ -72,6 +66,7 @@ pipeline {
         stage('Cleanup Docker Local Images') {
             steps {
                 script {
+                    // Clean up local Docker images to save space
                     sh """
                     docker rmi ${DOCKER_IMAGE}:${DOCKER_TAG} || true
                     docker rmi ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG} || true
@@ -83,7 +78,7 @@ pipeline {
 
     post {
         success {
-            echo "Pipeline executed successfully. Docker image pushed to Docker Hub."
+            echo "Pipeline executed successfully. Docker image pushed to Docker Hub with build number."
         }
         failure {
             echo "Pipeline failed. Please check the logs for details."
