@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logistic-deployment
+  labels:
+    app: logistic
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: logistic
+  template:
+    metadata:
+      labels:
+        app: logistic
+    spec:
+      containers:
+      - name: logistic-container
+        image: santhoshadmin/logistic.com:latest-56
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "500m"
+          limits:
+            memory: "512Mi"
+            cpu: "1"
+        env:
+        - name: LOG_LEVEL
+          value: "info" # Example of setting environment variables
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 20
