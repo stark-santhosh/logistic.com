@@ -7,12 +7,15 @@ pipeline {
         DOCKER_TAG = "latest-${BUILD_NUMBER}"  // Append build number to the tag
         DOCKERHUB_CREDENTIALS = 'dockerhub-tok' // Correct DockerHub credentials ID
         DOCKER_USERNAME = 'santhoshadmin' // DockerHub username
+        GITHUB_CREDENTIALS = 'githubup' // GitHub credentials for pushing changes
+        REPO_URL = 'https://github.com/ssanthosh2k3/logistic.com.git'
+        DEPLOYMENT_FILE = 'k8/deployment.yaml' // Path to your Kubernetes deployment file in the repo
     }
 
     stages {
         stage('Checkout Source Code') {
             steps {
-                git branch: 'master', url: 'https://github.com/ssanthosh2k3/logistic.com.git', credentialsId: 'githubup'
+                git branch: 'master', url: REPO_URL, credentialsId: GITHUB_CREDENTIALS
             }
         }
 
@@ -63,6 +66,32 @@ pipeline {
             }
         }
 
+        stage('Update Deployment in GitHub') {
+            steps {
+                script {
+                    // Clone the GitHub repository again
+                    sh 'git clone https://github.com/ssanthosh2k3/logistic.com.git'
+                    
+                    // Change directory to the cloned repo
+                    dir('logistic.com') {
+                        // Update the image tag in the deployment.yaml file
+                        def newImageTag = "${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}"
+                        sh "sed -i 's|image: .*|image: ${newImageTag}|' ${DEPLOYMENT_FILE}"
+                        
+                        // Commit and push the changes to GitHub
+                        sh 'git config user.name "Jenkins"'
+                        sh 'git config user.email "jenkins@yourdomain.com"'
+                        sh 'git add .'
+                        sh 'git commit -m "Update Docker image to ${newImageTag}"'
+                        sh 'git push origin master'
+                    }
+                    
+                    // Clean up cloned repository
+                    sh 'rm -rf logistic.com'
+                }
+            }
+        }
+
         stage('Cleanup Docker Local Images') {
             steps {
                 script {
@@ -78,7 +107,7 @@ pipeline {
 
     post {
         success {
-            echo "Pipeline executed successfully. Docker image pushed to Docker Hub with build number."
+            echo "Pipeline executed successfully. Docker image pushed to Docker Hub and deployment file updated."
         }
         failure {
             echo "Pipeline failed. Please check the logs for details."
