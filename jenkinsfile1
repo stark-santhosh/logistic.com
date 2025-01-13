@@ -7,6 +7,7 @@ pipeline {
         DOCKER_TAG = "latest-${BUILD_NUMBER}"  // Append build number to the tag
         DOCKERHUB_CREDENTIALS = 'dockerhub-tok' // Correct DockerHub credentials ID
         DOCKER_USERNAME = 'santhoshadmin' // DockerHub username
+        GITHUB_CREDENTIALS = 'githubup' 
         GITHUB_SSH_KEY = 'jenkins' // GitHub SSH Key credentials ID
         REPO_URL = 'git@github.com:ssanthosh2k3/logistic.com.git' // Use SSH URL for cloning the repo
         DEPLOYMENT_FILE = 'k8/deployment.yaml' // Path to your Kubernetes deployment file in the repo
