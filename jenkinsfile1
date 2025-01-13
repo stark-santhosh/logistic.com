@@ -7,15 +7,23 @@ pipeline {
         DOCKER_TAG = "latest-${BUILD_NUMBER}"  // Append build number to the tag
         DOCKERHUB_CREDENTIALS = 'dockerhub-tok' // Correct DockerHub credentials ID
         DOCKER_USERNAME = 'santhoshadmin' // DockerHub username
-        GITHUB_CREDENTIALS = 'githubup' // GitHub credentials for pushing changes
-        REPO_URL = 'https://github.com/ssanthosh2k3/logistic.com.git'
+        GITHUB_SSH_KEY = 'jenkins' // GitHub SSH Key credentials ID
+        REPO_URL = 'git@github.com:ssanthosh2k3/logistic.com.git' // Use SSH URL for cloning the repo
         DEPLOYMENT_FILE = 'k8/deployment.yaml' // Path to your Kubernetes deployment file in the repo
     }
 
     stages {
         stage('Checkout Source Code') {
             steps {
-                git branch: 'master', url: REPO_URL, credentialsId: GITHUB_CREDENTIALS
+                script {
+                    // Configure SSH key for authentication
+                    withCredentials([sshUserPrivateKey(credentialsId: "${GITHUB_SSH_KEY}", keyFileVariable: 'SSH_KEY')]) {
+                        sh """
+                        git config --global core.sshCommand "ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no"
+                        git clone ${REPO_URL}
+                        """
+                    }
+                }
             }
         }
 
@@ -69,9 +77,6 @@ pipeline {
         stage('Update Deployment in GitHub') {
             steps {
                 script {
-                    // Clone the GitHub repository again
-                    sh 'git clone https://github.com/ssanthosh2k3/logistic.com.git'
-                    
                     // Change directory to the cloned repo
                     dir('logistic.com') {
                         // Update the image tag in the deployment.yaml file
@@ -85,9 +90,6 @@ pipeline {
                         sh 'git commit -m "Update Docker image to ${newImageTag}"'
                         sh 'git push origin master'
                     }
-                    
-                    // Clean up cloned repository
-                    sh 'rm -rf logistic.com'
                 }
             }
         }
