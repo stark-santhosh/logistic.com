@@ -8,6 +8,7 @@ pipeline {
         DOCKERHUB_CREDENTIALS = 'dockerhub-tok' // Correct DockerHub credentials ID
         DOCKER_USERNAME = 'santhoshadmin' // DockerHub username
         GIT_CREDENTIALS = 'githubup' // GitHub credentials ID
+        GITHUB_TOKEN = credentials('github-pat') // GitHub Personal Access Token stored in Jenkins
     }
 
     stages {
@@ -65,15 +66,27 @@ pipeline {
         stage('Update Kubernetes Deployment') {
             steps {
                 script {
-                    // Modify the deployment.yaml to use the latest Docker image
                     sh """
                     sed -i 's|image: .*|image: ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}|' k8/deployment.yaml
                     git config --global user.email "jenkins@ci.com"
                     git config --global user.name "Jenkins CI"
                     git add k8/deployment.yaml
                     git commit -m "Update Kubernetes deployment with the latest Docker image"
-                    git push https://github.com/ssanthosh2k3/logistic.com.git HEAD:master
                     """
+                }
+            }
+        }
+
+        stage('Push Changes to GitHub') {
+            steps {
+                script {
+                    // Push changes to GitHub using the stored GitHub token for authentication
+                    withCredentials([string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')]) {
+                        sh """
+                        git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/ssanthosh2k3/logistic.com.git
+                        git push origin master
+                        """
+                    }
                 }
             }
         }
