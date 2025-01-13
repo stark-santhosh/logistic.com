@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: logistic-container
-        image: httpd:latest
+        image: santhoshadmin/logistic.com:latest-56
         ports:
         - containerPort: 80
         resources:
