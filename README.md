@@ -1,3 +1,19 @@
+
+# High Availability CI/CD Workflow for Logistic Service 🚚🔄
+
+## Project Highlights 🎯
+
+- **Configure Jenkins for CI** 🛠️: Set up Jenkins for Continuous Integration to automate code building and testing.
+- **Configure Argo CD for CD** 🚀: Deploy Argo CD for Continuous Deployment to sync changes in Kubernetes automatically.
+- **Code Analysis & Security with SonarQube** 🔍: Integrate SonarQube for static code analysis, ensuring security and quality.
+- **Monitoring and Observability with Prometheus & Grafana** 📊: Implement monitoring of Kubernetes with Prometheus and create dashboards with Grafana.
+
+## Workflow Overview 🔄
+
+Whenever a developer commits code, the following process is triggered:
+1. **Jenkins**: Dockerizes the application, pushes it to DockerHub, and modifies the Kubernetes deployment file with the latest image.
+2. **Argo CD**: Automatically syncs with the modified deployment file and deploys the new image to the Kubernetes cluster.
+
 ```mermaid
 flowchart LR;
     A[**Developer Commit**] --> B[**GitHub**];
@@ -31,20 +47,6 @@ flowchart LR;
 
 ```
 
-# High Availability CI/CD Workflow for Logistic Service 🚚🔄
-
-## Project Highlights 🎯
-
-- **Configure Jenkins for CI** 🛠️: Set up Jenkins for Continuous Integration to automate code building and testing.
-- **Configure Argo CD for CD** 🚀: Deploy Argo CD for Continuous Deployment to sync changes in Kubernetes automatically.
-- **Code Analysis & Security with SonarQube** 🔍: Integrate SonarQube for static code analysis, ensuring security and quality.
-- **Monitoring and Observability with Prometheus & Grafana** 📊: Implement monitoring of Kubernetes with Prometheus and create dashboards with Grafana.
-
-## Workflow Overview 🔄
-
-Whenever a developer commits code, the following process is triggered:
-1. **Jenkins**: Dockerizes the application, pushes it to DockerHub, and modifies the Kubernetes deployment file with the latest image.
-2. **Argo CD**: Automatically syncs with the modified deployment file and deploys the new image to the Kubernetes cluster.
 
 ---
 
