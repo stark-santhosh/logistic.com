@@ -1,6 +1,9 @@
 
 # High Availability CI/CD Workflow for Logistic Service 🚚🔄
 
+![jenkinsProcess Output](https://github.com/ssanthosh2k3/logistic.com/blob/master/doc/Screenshot%20from%202025-01-15%2000-04-37.png)
+
+
 ## Project Highlights 🎯
 
 - **Configure Jenkins for CI** 🛠️: Set up Jenkins for Continuous Integration to automate code building and testing.
@@ -72,14 +75,21 @@ flowchart LR;
 1. Create a new project in **SonarQube**.
 2. Generate an **access token** for Jenkins integration.
 
+![jenkinsProcess Output](https://github.com/ssanthosh2k3/logistic.com/blob/master/doc/sonar.png)
+
+
 ### Step 4: Deploy ArgoCD in Kubernetes 🚢
 1. Install **ArgoCD** in the Kubernetes cluster.
 2. Change the service from **ClusterIP** to **LoadBalancer** for external access.
+
+![jenkinsProcess Output](https://github.com/ssanthosh2k3/logistic.com/blob/master/doc/Screenshot%20from%202025-01-15%2000-08-10.png)
 
 ### Step 5: Create New Application in ArgoCD 🔄
 1. Add a new application in ArgoCD.
 2. Provide the details of the application and GitHub repository.
 3. Set sync to **Automatic** for continuous deployment.
+
+![jenkinsProcess Output](https://github.com/ssanthosh2k3/logistic.com/blob/master/doc/argoflow.png)
 
 ### Step 6: Create Service File for External Access 🌍
 1. Create a **Service** file for **logistic.com** for external access using a **LoadBalancer**.
@@ -90,6 +100,11 @@ flowchart LR;
 ### Step 8: Configure Monitoring with Prometheus & Grafana 📊
 1. Install **Prometheus** and **Grafana** in the Kubernetes cluster for monitoring.
 2. Create custom **Grafana Dashboards** for visualizing metrics and monitoring the production environment.
+
+![jenkinsProcess Output](https://github.com/ssanthosh2k3/logistic.com/blob/master/doc/monitor.png)
+
+![jenkinsProcess Output](https://github.com/ssanthosh2k3/logistic.com/blob/master/doc/pods.png)
+
 
 ---
 
