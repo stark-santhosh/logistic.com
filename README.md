@@ -29,7 +29,7 @@ flowchart LR;
     class H monitoringStyle;
     class I grafanaStyle;
 
-
+```
 
 # High Availability CI/CD Workflow for Logistic Service 🚚🔄
 
