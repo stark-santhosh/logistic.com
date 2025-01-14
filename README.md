@@ -65,6 +65,9 @@ flowchart LR;
    - **Modify the deployment file**.
    - **Cleanup process** post-deployment.
 
+![jenkinsProcess Output](https://github.com/ssanthosh2k3/logistic.com/blob/master/doc/jenkinsjob.png)
+
+
 ### Step 3: Create SonarQube Project & Access Token 🔑
 1. Create a new project in **SonarQube**.
 2. Generate an **access token** for Jenkins integration.
