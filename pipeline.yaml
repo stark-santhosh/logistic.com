@@ -9,6 +9,7 @@ phases:
     commands:
       - echo "Starting build phase"
       - echo "Hello from CodeBuild 👋"
+      - echo "Date: $(date)"
       - echo "Build ID: $CODEBUILD_BUILD_ID"
       - echo "Commit: $CODEBUILD_RESOLVED_SOURCE_VERSION"
 
