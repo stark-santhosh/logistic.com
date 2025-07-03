@@ -3,12 +3,13 @@ version: 0.2
 phases:
   install:
     commands:
-      - echo "Installing dependencis..."
+      - echo "Installing dependencies..."
   build:
     commands:
       - echo "Starting build phase"
-      - echo "Hello from CodeBuid 👋"
+      - echo "Hello from CodeBuild 👋"
       - echo "Date: $(date)"
+      
 
 artifacts:
   files:
