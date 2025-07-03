@@ -1,0 +1,29 @@
+version: 0.2
+
+env:
+  variables:
+    ECR_URI: 622539661098.dkr.ecr.us-east-1.amazonaws.com/santa
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - $(aws ecr get-login --no-include-email --region us-east-1)
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:-latest}
+  build:
+    commands:
+      - echo Building the Docker image...
+      - docker build -t $ECR_URI:$IMAGE_TAG .
+      - docker tag $ECR_URI:$IMAGE_TAG $ECR_URI:latest
+  post_build:
+    commands:
+      - echo Pushing the image to ECR...
+      - docker push $ECR_URI:$IMAGE_TAG
+      - docker push $ECR_URI:latest
+      - echo Done.
+
+artifacts:
+  files:
+    - '**/*'
