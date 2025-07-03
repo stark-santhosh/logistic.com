@@ -2,13 +2,10 @@
 version: 0.2
 
 phases:
-  install:
-    commands:
-      - echo "Installing dependencies..."
   build:
     commands:
-      - echo "Starting build phase"
-      - echo "Hello from CodeBuild 👋"
+      - echo "Hello from CodeBuild"
+
 artifacts:
   files:
     - "**/*"
