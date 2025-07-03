@@ -1,5 +1,5 @@
 # Use an official nginx image as the base image
-FROM nginx:alpine
+FROM public.ecr.aws/nginx/nginx:alpine
 
 # Set the working directory
 WORKDIR /usr/share/nginx/html
